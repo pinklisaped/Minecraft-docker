@@ -1,0 +1,37 @@
+# Build fabric 1.20.1 with mods
+FROM openjdk:17-jdk-alpine
+
+# See here https://fabricmc.net/use/server/
+ARG minecraft_version=1.20.1 loader_version=0.15.7 installer_version=1.0.0
+
+WORKDIR /server
+
+# Install server
+RUN \
+    apk update && \
+    apk add curl && \
+    rm -rf /var/cache/apk/ && \
+    curl https://meta.fabricmc.net/v2/versions/loader/${minecraft_version}/${loader_version}/${installer_version}/server/jar --output server.jar && \
+    java -jar server.jar nogui && \
+    sed -i -e 's/online-mode=true/online-mode=false/g' ./server.properties && \
+    echo eula=true > eula.txt 
+
+# Install mods
+RUN \
+    curl https://cdn.modrinth.com/data/5ibSyLAz/versions/tr2ZGtz4/InventorySorter-1.9.0-1.20.jar --output ./mods/InventorySorter.jar && \
+    curl https://cdn.modrinth.com/data/7mHyGgvW/versions/SfuEdZgi/IronChests-2.0.2.jar --output ./mods/IronChests.jar && \
+    curl https://cdn.modrinth.com/data/K01OU20C/versions/qW85eawp/cardinal-components-api-5.2.2.jar --output ./mods/cardinal-components-api.jar && \
+    curl https://cdn.modrinth.com/data/9s6osm5g/versions/J3FLptsi/cloth-config-11.1.118-fabric.jar --output ./mods/cloth-config.jar && \
+    curl https://cdn.modrinth.com/data/P7dR8mSH/versions/YG53rBmj/fabric-api-0.92.0%2B1.20.1.jar --output ./mods/fabric-api.jar && \
+    curl https://cdn.modrinth.com/data/FrZIkosK/versions/XPxHCtBB/forgottengraves-1.20.1-3.2.5.jar --output ./mods/forgottengraves.jar && \
+    curl https://cdn.modrinth.com/data/lfHFW1mp/versions/3Msidurl/journeymap-1.20.1-5.9.18p1-fabric.jar --output ./mods/journeymap.jar && \
+    curl https://cdn.modrinth.com/data/rlloIFEV/versions/C78BanYS/travelers-backpack-1.20.1-9.1.9.jar --output ./mods/travelers-backpack.jar && \
+    curl https://mediafilez.forgecdn.net/files/4586/218/worldedit-mod-7.2.15.jar --output ./mods/worldedit-mod.jar
+
+# Volumes
+VOLUME /server/world /server/world_nether /server/world_the_end
+
+EXPOSE 25565
+
+# Run app
+ENTRYPOINT ["java", "-jar", "server.jar", "nogui"]
