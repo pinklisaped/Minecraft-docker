@@ -1,6 +1,6 @@
 ## Example
 ```bash
-export version=1.20.1
+export version=1.21.1
 export server_type=fabric
 
 docker build -t minecraft:$version-$server_type --file $server_type/$version ./$server_type/

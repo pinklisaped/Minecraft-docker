@@ -1,0 +1,39 @@
+# Build fabric 1.21.1 with mods
+FROM openjdk:17-jdk-alpine
+
+# See here https://fabricmc.net/use/server/
+ARG minecraft_version=1.21.1 loader_version=0.16.7 installer_version=1.0.1
+
+WORKDIR /server
+
+# Install server
+RUN \
+    apk update && \
+    apk add curl && \
+    rm -rf /var/cache/apk/ && \
+    curl https://meta.fabricmc.net/v2/versions/loader/${minecraft_version}/${loader_version}/${installer_version}/server/jar --output server.jar && \
+    java -jar server.jar nogui && \
+    sed -i -e 's/online-mode=true/online-mode=false/g' ./server.properties && \
+    echo eula=true > eula.txt
+
+# Install mods
+RUN \
+    curl https://cdn.modrinth.com/data/FrZIkosK/versions/1QytY98Q/forgottengraves-3.2.14%2B1.20.1.jar --output ./mods/forgottengraves.jar && \
+
+    curl https://cdn.modrinth.com/data/lfHFW1mp/versions/CCrivBGb/journeymap-fabric-1.21.1-6.0.0-beta.28.jar --output ./mods/journeymap.jar && \
+    curl https://cdn.modrinth.com/data/u6dRKJwZ/versions/sKD6dX9n/jei-1.21.1-fabric-19.21.0.246.jar --output ./mods/jei.jar && \
+
+    curl https://cdn.modrinth.com/data/7mHyGgvW/versions/rHtTi59k/IronChests-2.0.4.jar --output ./mods/IronChests.jar && \
+    curl https://cdn.modrinth.com/data/K01OU20C/versions/tVPYyTPV/cardinal-components-api-6.1.1.jar --output ./mods/cardinal-components-api.jar && \
+    curl https://cdn.modrinth.com/data/9s6osm5g/versions/HpMb5wGb/cloth-config-15.0.140-fabric.jar --output ./mods/cloth-config.jar && \
+    curl https://cdn.modrinth.com/data/P7dR8mSH/versions/iFnYBUfS/fabric-api-0.106.0%2B1.21.1.jar --output ./mods/fabric-api.jar && \
+    curl https://cdn.modrinth.com/data/rlloIFEV/versions/GxSICLmq/travelersbackpack-forge-1.21.1-10.1.2.jar --output ./mods/travelers-backpack.jar && \
+    curl https://cdn.modrinth.com/data/1u6JkXh5/versions/WTAFvuRx/worldedit-mod-7.3.8.jar --output ./mods/worldedit-mod.jar
+
+# Volumes
+VOLUME /server/world /server/world_nether /server/world_the_end
+
+EXPOSE 25565
+
+# Run app
+ENTRYPOINT ["java", "-jar", "server.jar", "nogui"]
