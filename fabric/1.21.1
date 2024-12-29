@@ -30,6 +30,10 @@ RUN \
     curl https://cdn.modrinth.com/data/rlloIFEV/versions/GxSICLmq/travelersbackpack-forge-1.21.1-10.1.2.jar --output ./mods/travelers-backpack.jar && \
     curl https://cdn.modrinth.com/data/1u6JkXh5/versions/WTAFvuRx/worldedit-mod-7.3.8.jar --output ./mods/worldedit-mod.jar
 
+# Add user
+RUN addgroup -S minecraft && adduser -S minecraft -G minecraft && chown -R minecraft:minecraft /server/
+USER minecraft
+
 # Volumes
 VOLUME /server/world /server/world_nether /server/world_the_end
 
